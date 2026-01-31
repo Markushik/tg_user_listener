@@ -1,7 +1,8 @@
-from contextlib import asynccontextmanager
 # opentelemetry-instrument --log_level debug python -m uvicorn tg_user_forwarder.main.app:app --host 0.0.0.0 --port 8000
 
+from contextlib import asynccontextmanager
 import logging
+
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 from aiogram import Bot
@@ -12,10 +13,10 @@ from dishka.integrations.fastapi import setup_dishka
 from tg_user_forwarder.container import get_container
 from tg_user_forwarder.presentation.health import router as health_router
 from tg_user_forwarder.presentation.telegram import router as telegram_router
-from tg_user_forwarder.logging import setup_logging 
+from tg_user_forwarder.logging import setup_logging
+from tg_user_forwarder.settings.models import Settings
 
-setup_logging(logging.INFO) 
-
+setup_logging(logging.INFO)
 
 def create_app() -> FastAPI:
     container: AsyncContainer = get_container()
@@ -23,19 +24,28 @@ def create_app() -> FastAPI:
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         app.state.container = container
-        yield
 
         bot = await container.get(Bot)
+        settings = await container.get(Settings)
+
+        webhook_url = f"{settings.bot.webhook_base_url}{settings.bot.webhook_path}"
+        await bot.set_webhook(
+            webhook_url,
+            secret_token=settings.bot.webhook_secret,
+            drop_pending_updates=False,
+        )  
+
+        yield
+
+        # TODO: EMERGENCY -- DELETE THIS WHEN GO TO PROD!!!!!!!
         await bot.delete_webhook(drop_pending_updates=False)
         await container.close()
 
     app = FastAPI(lifespan=lifespan, default_response_class=ORJSONResponse)
-    
     app.include_router(health_router)
     app.include_router(telegram_router)
-    
+
     setup_dishka(container=container, app=app)
     return app
-
 
 app = create_app()

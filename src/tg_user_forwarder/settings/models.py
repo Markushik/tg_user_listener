@@ -1,8 +1,14 @@
+import os
+
 from pydantic import BaseModel, Field
 
 
 class BotSettings(BaseModel):
-    token: str = "123"
+    token: str = "6996207760:AAEJjYu7fgt3Mmb2Tot6f_jAdXkblWBEuHU"
+    
+    webhook_base_url: str = Field(default_factory=lambda: os.getenv("WEBHOOK_BASE_URL", "https://example.com"))
+    webhook_path: str = Field(default_factory=lambda: os.getenv("WEBHOOK_PATH", "/telegram/webhook"))
+    webhook_secret: str = Field(default_factory=lambda: os.getenv("WEBHOOK_SECRET", "my-secret"))
 
 
 class RabbitSettings(BaseModel):
