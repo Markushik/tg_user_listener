@@ -11,8 +11,11 @@ dependencies = [
     "fastapi[all] (>=0.128.0,<0.129.0)",
     "faststream[rabbit] (>=0.6.5,<0.7.0)",
     "dishka (>=1.7.2,<2.0.0)",
-    "dynaconf (>=3.2.12,<4.0.0)",
-    "aiogram (>=3.24.0,<4.0.0)"
+    "aiogram (>=3.24.0,<4.0.0)",
+    "opentelemetry-distro (==0.60b1)",
+    "opentelemetry-exporter-otlp (==1.39.1)",
+    "opentelemetry-instrumentation-fastapi (==0.60b1)",
+    "opentelemetry-instrumentation-logging (==0.60b1)",
 ]
 
 
