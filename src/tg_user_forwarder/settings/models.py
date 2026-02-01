@@ -11,9 +11,15 @@ class BotSettings(BaseModel):
     webhook_secret: str = Field(default_factory=lambda: os.getenv("WEBHOOK_SECRET", "my-secret"))
 
 
+
 class RabbitSettings(BaseModel):
     url: str = "amqp://guest:guest@localhost:5672"
-    
+
+    exchange: str = "tg.updates"
+
+    personal_queue: str = "tg.bot.user.queue"
+    group_queue: str = "tg.router.user.queue"
+
     personal_routing_key: str = "tg.bot.user"
     group_routing_key: str = "tg.router.user"
 
