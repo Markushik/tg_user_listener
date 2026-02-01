@@ -14,14 +14,10 @@ class BrokerProvider(Provider):
     async def get_broker(self, settings: RabbitSettings) -> AsyncIterable[RabbitBroker]:
         broker = RabbitBroker(settings.url)
         await broker.connect()
-
-        await broker.declare_queue(
-            RabbitQueue(name=settings.personal_queue, durable=True, routing_key=settings.personal_queue)
-        )
-
-        await broker.declare_queue(
-            RabbitQueue(name=settings.group_queue, durable=True, routing_key=settings.group_queue)
-        )
+        
+        await broker.declare_queue(RabbitQueue(name=settings.personal_queue, durable=True, routing_key=settings.personal_queue))
+        await broker.declare_queue(RabbitQueue(name=settings.group_queue, durable=True, routing_key=settings.group_queue))
+        await broker.declare_queue(RabbitQueue(name=settings.other_queue, durable=True, routing_key=settings.other_queue))
 
         yield broker
         await broker.stop()

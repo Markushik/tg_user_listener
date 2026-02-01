@@ -1,5 +1,3 @@
-# opentelemetry-instrument --log_level debug python -m uvicorn tg_user_forwarder.main.app:app --host 0.0.0.0 --port 8000
-
 from contextlib import asynccontextmanager
 import logging
 
@@ -34,7 +32,6 @@ def create_app() -> FastAPI:
             secret_token=settings.bot.webhook_secret,
             drop_pending_updates=False,
         )  
-
         yield
 
         # TODO: EMERGENCY -- DELETE THIS WHEN GO TO PROD!!!!!!!
@@ -42,10 +39,11 @@ def create_app() -> FastAPI:
         await container.close()
 
     app = FastAPI(lifespan=lifespan, default_response_class=ORJSONResponse)
+    dishka = setup_dishka(container=container, app=app)
+    
     app.include_router(health_router)
     app.include_router(telegram_router)
 
-    setup_dishka(container=container, app=app)
     return app
 
 app = create_app()

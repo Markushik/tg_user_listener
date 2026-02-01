@@ -17,11 +17,13 @@ class RabbitSettings(BaseModel):
 
     exchange: str = "tg.updates"
 
-    personal_queue: str = "tg.bot.user.queue"
-    group_queue: str = "tg.router.user.queue"
+    personal_queue: str = "tg.bot.user"
+    group_queue: str = "tg.router.user"
 
     personal_routing_key: str = "tg.bot.user"
     group_routing_key: str = "tg.router.user"
+    
+    other_queue: str = "tg.other"
 
 
 class Settings(BaseModel):

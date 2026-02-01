@@ -4,7 +4,7 @@ import logging
 
 from aiogram.enums import ChatType
 
-from tg_user_forwarder.application.constants import group_route, personal_route
+from tg_user_forwarder.application.constants import group_route, other_route, personal_route
 from tg_user_forwarder.application.contracts.telegram_webhook import TelegramWebhookContract
 from tg_user_forwarder.adapters.broker.publisher import UpdatesPublisher
 
@@ -19,13 +19,11 @@ class TelegramWebhookInteractor:
         update = contract.update
         meta = contract.meta
 
-        routing_key = personal_route if meta.chat_type == ChatType.PRIVATE else group_route
+        routing_key = other_route
+        if meta.chat_type == ChatType.PRIVATE:
+            routing_key = personal_route
+        elif meta.chat_type in (ChatType.GROUP, ChatType.SUPERGROUP):
+            routing_key = group_route
 
-        await self.updates_publisher.publish(
-            routing_key=routing_key,
-            update=update,
-            meta=meta,
-        )
-
+        await self.updates_publisher.publish(routing_key=routing_key, update=update)
         logger.info("telegram_webhook.published")
-
