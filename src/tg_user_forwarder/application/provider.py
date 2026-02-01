@@ -2,9 +2,11 @@ from __future__ import annotations
 
 from dishka import Provider, Scope, provide
 
-from tg_user_forwarder.application.interactors.telegram_webhook import TelegramWebhookInteractor
-from tg_user_forwarder.application.services.meta_extractor import MetaExtractorService
 from tg_user_forwarder.adapters.broker.publisher import UpdatesPublisher
+from tg_user_forwarder.application.interactors.telegram_webhook import (
+    TelegramWebhookInteractor,
+)
+from tg_user_forwarder.application.services.meta_extractor import MetaExtractorService
 
 
 class ServiceProvider(Provider):

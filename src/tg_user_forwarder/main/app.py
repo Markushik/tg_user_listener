@@ -1,20 +1,21 @@
-from contextlib import asynccontextmanager
 import logging
+from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
-from fastapi.responses import ORJSONResponse
 from aiogram import Bot
-
 from dishka import AsyncContainer
 from dishka.integrations.fastapi import setup_dishka
+from fastapi import FastAPI
+from fastapi.responses import ORJSONResponse
 
 from tg_user_forwarder.container import get_container
+from tg_user_forwarder.logging import setup_logging
 from tg_user_forwarder.presentation.health import router as health_router
 from tg_user_forwarder.presentation.telegram import router as telegram_router
-from tg_user_forwarder.logging import setup_logging
 from tg_user_forwarder.settings.models import Settings
 
 setup_logging(logging.INFO)
+
+# poetry run ruff check src/tg_user_forwarder --fix
 
 def create_app() -> FastAPI:
     container: AsyncContainer = get_container()
@@ -31,7 +32,7 @@ def create_app() -> FastAPI:
             webhook_url,
             secret_token=settings.bot.webhook_secret,
             drop_pending_updates=False,
-        )  
+        )
         yield
 
         # TODO: EMERGENCY -- DELETE THIS WHEN GO TO PROD!!!!!!!
@@ -39,8 +40,8 @@ def create_app() -> FastAPI:
         await container.close()
 
     app = FastAPI(lifespan=lifespan, default_response_class=ORJSONResponse)
-    dishka = setup_dishka(container=container, app=app)
-    
+    setup_dishka(container=container, app=app)
+
     app.include_router(health_router)
     app.include_router(telegram_router)
 

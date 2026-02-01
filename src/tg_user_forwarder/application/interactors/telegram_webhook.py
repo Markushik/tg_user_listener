@@ -4,9 +4,15 @@ import logging
 
 from aiogram.enums import ChatType
 
-from tg_user_forwarder.application.constants import group_route, other_route, personal_route
-from tg_user_forwarder.application.contracts.telegram_webhook import TelegramWebhookContract
 from tg_user_forwarder.adapters.broker.publisher import UpdatesPublisher
+from tg_user_forwarder.application.constants import (
+    group_route,
+    other_route,
+    personal_route,
+)
+from tg_user_forwarder.application.contracts.telegram_webhook import (
+    TelegramWebhookContract,
+)
 
 logger = logging.getLogger(__name__)
 

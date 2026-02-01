@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 import orjson
-
 from aio_pika import Message
 from aiogram.types import Update
 from faststream.rabbit import RabbitBroker
 
-from tg_user_forwarder.application.constants import group_route, other_route, personal_route
+from tg_user_forwarder.application.constants import (
+    group_route,
+    personal_route,
+)
 from tg_user_forwarder.settings.models import RabbitSettings
 
 

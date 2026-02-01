@@ -1,15 +1,19 @@
 from __future__ import annotations
 
 import logging
-import orjson
 
-from fastapi import APIRouter, Header, HTTPException, Request
+import orjson
 from aiogram import Bot
 from aiogram.types import Update
 from dishka.integrations.fastapi import FromDishka, inject
+from fastapi import APIRouter, Header, HTTPException, Request
 
-from tg_user_forwarder.application.contracts.telegram_webhook import TelegramWebhookContract
-from tg_user_forwarder.application.interactors.telegram_webhook import TelegramWebhookInteractor
+from tg_user_forwarder.application.contracts.telegram_webhook import (
+    TelegramWebhookContract,
+)
+from tg_user_forwarder.application.interactors.telegram_webhook import (
+    TelegramWebhookInteractor,
+)
 from tg_user_forwarder.application.services.meta_extractor import MetaExtractorService
 from tg_user_forwarder.logging import set_context
 from tg_user_forwarder.settings.models import Settings

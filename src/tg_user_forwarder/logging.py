@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 from contextlib import contextmanager
 from contextvars import ContextVar
-from typing import Optional, Any
+from typing import Any, Optional
 
 from pydantic import BaseModel
 

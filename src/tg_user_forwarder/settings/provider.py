@@ -1,4 +1,4 @@
-from dishka import provide, Provider, Scope
+from dishka import Provider, Scope, provide
 
 from tg_user_forwarder.settings.models import (
     BotSettings,
@@ -25,4 +25,3 @@ class SettingsProvider(Provider):
     @provide
     def get_rabbit_config(self) -> RabbitSettings:
         return self.settings.rabbit
-        
