@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import logging
 
-import orjson
 from aiogram import Bot
 from aiogram.types import Update
 from dishka.integrations.fastapi import FromDishka, inject
 from fastapi import APIRouter, Header, HTTPException, Request
+from pydantic import ValidationError
 
 from tg_user_forwarder.application.contracts.telegram_webhook import (
     TelegramWebhookContract,
@@ -31,20 +31,19 @@ async def telegram_webhook(
     meta_extractor: FromDishka[MetaExtractorService],
     telegram_webhook: FromDishka[TelegramWebhookInteractor],
     secret: str | None = Header(default=None, alias="X-Telegram-Bot-Api-Secret-Token"),
-):
+) -> dict[str, bool]:
     webhook_secret = settings.bot.webhook_secret
     if webhook_secret and secret != webhook_secret:
         raise HTTPException(status_code=403, detail="bad secret token")
 
+    body = await request.body()
+
     try:
-        body = await request.body()
-        payload = orjson.loads(body)
-    except orjson.JSONDecodeError:
+        update = Update.model_validate_json(body, context={"bot": bot})
+    except ValidationError:
         raise HTTPException(status_code=400, detail="invalid json")
 
-    update = Update.model_validate(payload, context={"bot": bot})
     meta = meta_extractor.extract(update)
-
     set_context(update_id=meta.update_id, user_id=meta.user_id, chat_id=meta.chat_id)
 
     logger.info("telegram_webhook.received")
@@ -53,5 +52,3 @@ async def telegram_webhook(
     await telegram_webhook(contract)
 
     return {"ok": True}
-
-

@@ -6,9 +6,8 @@ from tg_user_forwarder.adapters.broker.publisher import UpdatesPublisher
 from tg_user_forwarder.application.interactors.telegram_webhook import (
     TelegramWebhookInteractor,
 )
-
-from tg_user_forwarder.settings.models import RabbitSettings
 from tg_user_forwarder.application.services.meta_extractor import MetaExtractorService
+from tg_user_forwarder.settings.models import RabbitSettings
 
 
 class ServiceProvider(Provider):

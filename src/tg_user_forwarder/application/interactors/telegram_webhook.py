@@ -5,7 +5,9 @@ import logging
 from aiogram.enums import ChatType
 
 from tg_user_forwarder.adapters.broker.publisher import UpdatesPublisher
-from tg_user_forwarder.application.contracts.telegram_webhook import TelegramWebhookContract
+from tg_user_forwarder.application.contracts.telegram_webhook import (
+    TelegramWebhookContract,
+)
 from tg_user_forwarder.settings.models import RabbitSettings
 
 logger = logging.getLogger(__name__)
