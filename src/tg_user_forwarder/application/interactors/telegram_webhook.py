@@ -5,31 +5,27 @@ import logging
 from aiogram.enums import ChatType
 
 from tg_user_forwarder.adapters.broker.publisher import UpdatesPublisher
-from tg_user_forwarder.application.constants import (
-    group_route,
-    other_route,
-    personal_route,
-)
-from tg_user_forwarder.application.contracts.telegram_webhook import (
-    TelegramWebhookContract,
-)
+from tg_user_forwarder.application.contracts.telegram_webhook import TelegramWebhookContract
+from tg_user_forwarder.settings.models import RabbitSettings
 
 logger = logging.getLogger(__name__)
 
 
 class TelegramWebhookInteractor:
-    def __init__(self, updates_publisher: UpdatesPublisher) -> None:
+    def __init__(self, updates_publisher: UpdatesPublisher, rabbit_settings: RabbitSettings) -> None:
         self.updates_publisher = updates_publisher
+        self.rabbit_settings = rabbit_settings
 
     async def __call__(self, contract: TelegramWebhookContract) -> None:
-        update = contract.update
-        meta = contract.meta
+        chat_type = contract.meta.chat_type
 
-        routing_key = other_route
-        if meta.chat_type == ChatType.PRIVATE:
-            routing_key = personal_route
-        elif meta.chat_type in (ChatType.GROUP, ChatType.SUPERGROUP):
-            routing_key = group_route
+        if chat_type == ChatType.PRIVATE:
+            routing_key = self.rabbit_settings.funnel_routing_key
+        elif chat_type in (ChatType.GROUP, ChatType.SUPERGROUP):
+            routing_key = self.rabbit_settings.router_routing_key
+        else:
+            routing_key = self.rabbit_settings.other_routing_key
 
-        await self.updates_publisher.publish(routing_key=routing_key, update=update)
+        await self.updates_publisher.publish(routing_key=routing_key, update=contract.update)
         logger.info("telegram_webhook.published")
+

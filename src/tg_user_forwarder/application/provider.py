@@ -6,6 +6,8 @@ from tg_user_forwarder.adapters.broker.publisher import UpdatesPublisher
 from tg_user_forwarder.application.interactors.telegram_webhook import (
     TelegramWebhookInteractor,
 )
+
+from tg_user_forwarder.settings.models import RabbitSettings
 from tg_user_forwarder.application.services.meta_extractor import MetaExtractorService
 
 
@@ -17,5 +19,5 @@ class ServiceProvider(Provider):
 
 class InteractorProvider(Provider):
     @provide(scope=Scope.REQUEST)
-    def get_telegram_webhook_interactor(self, updates_publisher: UpdatesPublisher) -> TelegramWebhookInteractor:
-        return TelegramWebhookInteractor(updates_publisher=updates_publisher)
+    def get_telegram_webhook_interactor(self, updates_publisher: UpdatesPublisher, rabbit_settings: RabbitSettings) -> TelegramWebhookInteractor:
+        return TelegramWebhookInteractor(updates_publisher=updates_publisher, rabbit_settings=rabbit_settings)

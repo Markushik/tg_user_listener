@@ -14,16 +14,15 @@ class BotSettings(BaseModel):
 
 class RabbitSettings(BaseModel):
     url: str = "amqp://guest:guest@localhost:5672"
-
     exchange: str = "tg.updates"
 
-    personal_queue: str = "tg.bot.user"
-    group_queue: str = "tg.router.user"
-
-    personal_routing_key: str = "tg.bot.user"
-    group_routing_key: str = "tg.router.user"
-
+    funnel_queue: str = "tg.user.funnel"
+    router_queue: str = "tg.user.router"
     other_queue: str = "tg.other"
+
+    funnel_routing_key: str = "tg.user.funnel"
+    router_routing_key: str = "tg.user.router"
+    other_routing_key: str = "tg.other"
 
 
 class Settings(BaseModel):
