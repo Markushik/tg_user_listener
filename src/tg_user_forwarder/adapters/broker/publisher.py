@@ -4,6 +4,7 @@ import orjson
 from aio_pika import Message
 from aiogram.types import Update
 from faststream.rabbit import ExchangeType, RabbitBroker, RabbitExchange
+from opentelemetry.propagate import inject
 
 from tg_user_forwarder.settings.models import RabbitSettings
 
@@ -15,7 +16,6 @@ class UpdatesPublisher:
             type=ExchangeType.DIRECT,
             durable=True,
         )
-
         publishers_by_routing_key = {
             settings.funnel_routing_key: broker.publisher(exchange=exchange, routing_key=settings.funnel_routing_key),
             settings.router_routing_key: broker.publisher(exchange=exchange, routing_key=settings.router_routing_key),
@@ -30,7 +30,15 @@ class UpdatesPublisher:
         if publisher is None:
             publisher = self.publishers_by_routing_key[self.default_routing_key]
 
+        headers: dict[str, str] = {}
+        inject(headers)
+
         payload = orjson.dumps(update.model_dump(mode="json"))
-        message = Message(payload, content_type="application/json")
+        message = Message(
+            payload,
+            content_type="application/json",
+            headers=headers,
+        )
 
         await publisher.publish(message)
+

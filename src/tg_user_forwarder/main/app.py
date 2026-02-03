@@ -35,7 +35,7 @@ def create_app() -> FastAPI:
         )
         yield
 
-        # TODO: EMERGENCY -- DELETE THIS WHEN GO TO PROD!!!!!!!
+        # TODO: EMERGENCY -- DELETE THIS WHEN GO TO THE PROD!!!!!!!
         await bot.delete_webhook(drop_pending_updates=False)
         await container.close()
 
