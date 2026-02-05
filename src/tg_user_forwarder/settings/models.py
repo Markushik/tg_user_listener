@@ -14,15 +14,8 @@ class BotSettings(BaseModel):
 
 class RabbitSettings(BaseModel):
     url: str = "amqp://guest:guest@localhost:5672"
-    exchange: str = "tg.updates"
-
-    funnel_queue: str = "tg.user.funnel"
-    router_queue: str = "tg.user.router"
-    other_queue: str = "tg.other"
-
-    funnel_routing_key: str = "tg.user.funnel"
-    router_routing_key: str = "tg.user.router"
-    other_routing_key: str = "tg.other"
+    exchange: str = "tg.detach.updates"
+    audience: str = "user"
 
 
 class Settings(BaseModel):

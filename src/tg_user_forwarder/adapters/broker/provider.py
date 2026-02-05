@@ -15,26 +15,18 @@ class BrokerProvider(Provider):
         broker = RabbitBroker(settings.url)
         await broker.connect()
 
-        exchange = await broker.declare_exchange(
+        await broker.declare_exchange(
             RabbitExchange(
                 name=settings.exchange,
-                type=ExchangeType.DIRECT,
+                type=ExchangeType.TOPIC,
                 durable=True,
             )
         )
 
-        bindings = [
-            (settings.funnel_queue, settings.funnel_routing_key),
-            (settings.router_queue, settings.router_routing_key),
-            (settings.other_queue, settings.other_routing_key),
-        ]
-
-        for queue_name, routing_key in bindings:
-            queue = await broker.declare_queue(RabbitQueue(name=queue_name, durable=True))
-            await queue.bind(exchange=exchange, routing_key=routing_key)
-
-        yield broker
-        await broker.stop()
+        try:
+            yield broker
+        finally:
+            await broker.stop()
 
 class UpdatesPublisherProvider(Provider):
     @provide(scope=Scope.APP)
