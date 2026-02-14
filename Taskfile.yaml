@@ -1,0 +1,26 @@
+version: "3"
+
+vars:
+  SERVICE: tg_user_forwarder
+  SRC_PATH: src/tg_user_forwarder
+  HOST: 0.0.0.0
+  PORT: "9803"
+
+tasks:
+
+  venv:
+    desc: "Activate Rye virtualenv"
+    cmds:
+      - bash -lc 'source .venv/bin/activate && python -V'
+
+  fmt:
+    desc: "Ruff auto-fix for tg_user_forwarder"
+    cmds:
+      - bash -lc 'source .venv/bin/activate && ruff check {{.SRC_PATH}} --fix'
+
+  run:
+    desc: "Run service via your script"
+    cmds:
+      - bash -lc 'source .venv/bin/activate && ./ops/run_trycloudflare.sh'
+
+

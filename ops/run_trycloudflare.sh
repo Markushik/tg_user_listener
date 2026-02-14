@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PORT="${PORT:-8000}"
+PORT="${PORT:-9000}"
 WEBHOOK_PATH="${WEBHOOK_PATH:-/telegram/webhook}"
 WEBHOOK_SECRET="${WEBHOOK_SECRET:-my-secret}"
 

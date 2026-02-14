@@ -1,21 +1,25 @@
 import logging
 from contextlib import asynccontextmanager
 
-from aiogram import Bot
 from dishka import AsyncContainer
 from dishka.integrations.fastapi import setup_dishka
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 
+# from prometheus_fastapi_instrumentator import Instrumentator
 from tg_user_forwarder.container import get_container
 from tg_user_forwarder.logging import setup_logging
-from tg_user_forwarder.presentation.health import router as health_router
-from tg_user_forwarder.presentation.telegram import router as telegram_router
-from tg_user_forwarder.settings.models import Settings
+from tg_user_forwarder.presentation.api.health import router as health_router
+from tg_user_forwarder.presentation.api.telegram import router as telegram_router
 
 setup_logging(logging.INFO)
 
-# poetry run ruff check src/tg_user_forwarder --fix
+# def setup_metrics(app: FastAPI) -> None:
+#     instrumentator = Instrumentator()
+
+#     instrumentator.instrument(app)
+#     instrumentator.expose(app, endpoint="/metrics")
+
 
 def create_app() -> FastAPI:
     container: AsyncContainer = get_container()
@@ -23,20 +27,7 @@ def create_app() -> FastAPI:
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         app.state.container = container
-
-        # bot = await container.get(Bot)
-        # settings = await container.get(Settings)
-
-        # webhook_url = f"{settings.bot.webhook_base_url}{settings.bot.webhook_path}"
-        # await bot.set_webhook(
-        #     webhook_url,
-        #     secret_token=settings.bot.webhook_secret,
-        #     drop_pending_updates=False,
-        # )
         yield
-
-        # TODO: EMERGENCY -- DELETE THIS WHEN GO TO THE PROD!!!!!!!
-        # await bot.delete_webhook(drop_pending_updates=False)
         await container.close()
 
     app = FastAPI(lifespan=lifespan, default_response_class=ORJSONResponse)
