@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-import orjson
 
-from aio_pika import Message
 from aiogram.enums import ChatType
 from aiogram.types import Update
 from faststream.rabbit import RabbitBroker
