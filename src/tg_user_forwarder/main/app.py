@@ -24,19 +24,19 @@ def create_app() -> FastAPI:
     async def lifespan(app: FastAPI):
         app.state.container = container
 
-        bot = await container.get(Bot)
-        settings = await container.get(Settings)
+        # bot = await container.get(Bot)
+        # settings = await container.get(Settings)
 
-        webhook_url = f"{settings.bot.webhook_base_url}{settings.bot.webhook_path}"
-        await bot.set_webhook(
-            webhook_url,
-            secret_token=settings.bot.webhook_secret,
-            drop_pending_updates=False,
-        )
+        # webhook_url = f"{settings.bot.webhook_base_url}{settings.bot.webhook_path}"
+        # await bot.set_webhook(
+        #     webhook_url,
+        #     secret_token=settings.bot.webhook_secret,
+        #     drop_pending_updates=False,
+        # )
         yield
 
         # TODO: EMERGENCY -- DELETE THIS WHEN GO TO THE PROD!!!!!!!
-        await bot.delete_webhook(drop_pending_updates=False)
+        # await bot.delete_webhook(drop_pending_updates=False)
         await container.close()
 
     app = FastAPI(lifespan=lifespan, default_response_class=ORJSONResponse)

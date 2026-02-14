@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import orjson
+
 from aio_pika import Message
 from aiogram.enums import ChatType
 from aiogram.types import Update
-from faststream.rabbit import ExchangeType, RabbitBroker, RabbitExchange
+from faststream.rabbit import RabbitBroker
 from opentelemetry.propagate import inject
 
 from tg_user_forwarder.settings.models import RabbitSettings
@@ -12,31 +13,28 @@ from tg_user_forwarder.settings.models import RabbitSettings
 
 class UpdatesPublisher:
     def __init__(self, broker: RabbitBroker, settings: RabbitSettings) -> None:
-        self.exchange = RabbitExchange(
-            name=settings.exchange,
-            type=ExchangeType.TOPIC,
-            durable=True,
-        )
+        self.broker = broker
+        self.exchange = settings.exchange
         self.audience = settings.audience
 
-        self.publishers = {
-            "private": broker.publisher(exchange=self.exchange, routing_key=f"updates.{self.audience}.private"),
-            "group": broker.publisher(exchange=self.exchange, routing_key=f"updates.{self.audience}.group"),
-            "other": broker.publisher(exchange=self.exchange, routing_key=f"updates.{self.audience}.other"),
-        }
+    def _choose_scope(self, chat_type: ChatType | None) -> str:
+        if chat_type == ChatType.PRIVATE:
+            return "private"
+        if chat_type in (ChatType.GROUP, ChatType.SUPERGROUP):
+            return "group"
+        return "other"
 
     async def publish(self, update: Update, chat_type: ChatType | None) -> None:
-        headers: dict[str, str] = {}
+        headers: dict = {} # otel headers
         inject(headers)
 
-        payload = orjson.dumps(update.model_dump(mode="json"))
-        message = Message(payload, content_type="application/json", headers=headers)
+        scope = self._choose_scope(chat_type)
+        routing_key = f"updates.{self.audience}.{scope}"
 
-        if chat_type == ChatType.PRIVATE:
-            scope = "private"
-        elif chat_type in (ChatType.GROUP, ChatType.SUPERGROUP):
-            scope = "group"
-        else:
-            scope = "other"
-
-        await self.publishers[scope].publish(message)
+        await self.broker.publish(
+            message=update,
+            exchange=self.exchange,
+            routing_key=routing_key,
+            headers=headers,
+            # automatic application/json
+        )

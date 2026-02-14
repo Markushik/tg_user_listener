@@ -9,13 +9,15 @@ from tg_user_forwarder.adapters.broker.publisher import UpdatesPublisher
 from tg_user_forwarder.settings.models import RabbitSettings
 
 
+
+
 class BrokerProvider(Provider):
     @provide(scope=Scope.APP)
     async def get_broker(self, settings: RabbitSettings) -> AsyncIterable[RabbitBroker]:
         broker = RabbitBroker(settings.url)
         await broker.connect()
 
-        await broker.declare_exchange(
+        exchange = await broker.declare_exchange(
             RabbitExchange(
                 name=settings.exchange,
                 type=ExchangeType.TOPIC,
@@ -23,10 +25,20 @@ class BrokerProvider(Provider):
             )
         )
 
+        for queue_name, routing_key in settings.queues.items():
+            q = await broker.declare_queue(
+                RabbitQueue(
+                    name=queue_name,
+                    durable=True,
+                )
+            )
+            await q.bind(exchange=exchange, routing_key=routing_key)
+
         try:
             yield broker
         finally:
             await broker.stop()
+
 
 class UpdatesPublisherProvider(Provider):
     @provide(scope=Scope.APP)

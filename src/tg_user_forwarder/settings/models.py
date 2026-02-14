@@ -1,10 +1,11 @@
 import os
+from typing import Mapping
 
 from pydantic import BaseModel, Field
 
 
 class BotSettings(BaseModel):
-    token: str = "6996207760:AAEJjYu7fgt3Mmb2Tot6f_jAdXkblWBEuHU"
+    token: str = "6996207760:AAEQbsRpJCuWp7bKAfk24t7RecPqskBLpZQ"
 
     webhook_base_url: str = Field(default_factory=lambda: os.getenv("WEBHOOK_BASE_URL", "https://example.com"))
     webhook_path: str = Field(default_factory=lambda: os.getenv("WEBHOOK_PATH", "/telegram/webhook"))
@@ -13,9 +14,21 @@ class BotSettings(BaseModel):
 
 
 class RabbitSettings(BaseModel):
-    url: str = "amqp://guest:guest@localhost:5672"
-    exchange: str = "tg.detach.updates"
+    url: str = Field(
+        default="amqp://guest:guest@localhost:5672",
+    )
     audience: str = "user"
+    exchange: str = Field(
+        default="tg_updates.inbound",
+    )
+    queues: Mapping[str, str] = Field(
+        default_factory=lambda: {
+            "tg_updates.user.private": "updates.user.private",
+            "tg_updates.user.group": "updates.user.group",
+            "tg_updates.user.other": "updates.user.other",
+        },
+        description="Mapping of queue name to routing key",
+    )
 
 
 class Settings(BaseModel):
