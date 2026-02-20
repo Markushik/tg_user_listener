@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from pprint import pprint
 
 from aiogram.enums import ChatType
 from aiogram.types import Update
@@ -29,10 +30,10 @@ class UpdatesPublisher:
         scope = self._choose_scope(chat_type)
         routing_key = f"updates.{self.audience}.{scope}"
 
+        pprint(update)
         await self.broker.publish(
             message=update,
             exchange=self.exchange,
             routing_key=routing_key,
             headers=headers,
-            # automatic application/json
         )
