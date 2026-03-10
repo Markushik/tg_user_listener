@@ -63,11 +63,10 @@ echo "4) Setting Telegram webhook to: $WEBHOOK_URL"
 tg_api "setWebhook" \
   -d "url=${WEBHOOK_URL}" \
   -d "secret_token=${WEBHOOK_SECRET}" \
-  -d "drop_pending_updates=true" \
-  | tee /tmp/tg_set_webhook.json
+  -d "drop_pending_updates=true"
 
 echo "5) getWebhookInfo:"
-tg_api "getWebhookInfo" | tee /tmp/tg_get_webhook_info.json
+tg_api "getWebhookInfo"
 echo
 
 echo "6) exec: starting app on :$PORT"
