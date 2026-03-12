@@ -58,18 +58,27 @@ export WEBHOOK_SECRET="$WEBHOOK_SECRET"
 
 WEBHOOK_URL="${URL}${WEBHOOK_PATH}"
 
-echo "4) Setting Telegram webhook to: $WEBHOOK_URL"
-# drop_pending_updates=true — чтобы не копились старые апдейты на неверный URL
+echo "4) Reset webhook"
+tg_api "deleteWebhook" -d "drop_pending_updates=true"
+
+echo "5) Setting Telegram webhook to: $WEBHOOK_URL"
 tg_api "setWebhook" \
   -d "url=${WEBHOOK_URL}" \
   -d "secret_token=${WEBHOOK_SECRET}" \
-  -d "drop_pending_updates=true"
+  -d 'allowed_updates=[
+"message",
+"edited_message",
+"callback_query",
+"chat_member",
+"my_chat_member",
+"chat_join_request"
+]'
 
-echo "5) getWebhookInfo:"
+echo "6) getWebhookInfo:"
 tg_api "getWebhookInfo"
 echo
 
-echo "6) exec: starting app on :$PORT"
+echo "7) exec: starting app on :$PORT"
 if [[ "$USE_OTEL" == "1" ]]; then
   exec opentelemetry-instrument --log_level info \
     python -m uvicorn tg_user_forwarder.main.app:app --host 0.0.0.0 --port "$PORT"
