@@ -6,6 +6,7 @@ from aiogram import Bot
 from aiogram.types import Update
 from dishka.integrations.fastapi import FromDishka, inject
 from fastapi import APIRouter, Header, HTTPException, Request
+from opentelemetry import trace
 from pydantic import ValidationError
 
 from tg_user_forwarder.application.contracts.telegram_webhook import (
@@ -15,11 +16,13 @@ from tg_user_forwarder.application.interactors.telegram_webhook import (
     TelegramWebhookInteractor,
 )
 from tg_user_forwarder.application.services.meta_extractor import MetaExtractorService
-from tg_user_forwarder.logging import set_context
+from tg_user_forwarder.logging import context_scope
 from tg_user_forwarder.settings.models import Settings
 
 router = APIRouter(prefix="/telegram")
+
 logger = logging.getLogger("tg.webhook")
+tracer = trace.get_tracer(__name__)
 
 
 @router.post("/webhook")
@@ -29,7 +32,7 @@ async def telegram_webhook(
     bot: FromDishka[Bot],
     settings: FromDishka[Settings],
     meta_extractor: FromDishka[MetaExtractorService],
-    telegram_webhook: FromDishka[TelegramWebhookInteractor],
+    telegram_webhook_interactor: FromDishka[TelegramWebhookInteractor],
     secret: str | None = Header(default=None, alias="X-Telegram-Bot-Api-Secret-Token"),
 ) -> dict[str, bool]:
     webhook_secret = settings.bot.webhook_secret
@@ -38,17 +41,25 @@ async def telegram_webhook(
 
     body = await request.body()
 
-    try:
-        update = Update.model_validate_json(body, context={"bot": bot})
-    except ValidationError:
-        raise HTTPException(status_code=400, detail="invalid json")
+    with tracer.start_as_current_span("telegram_webhook"):
+        try:
+            update = Update.model_validate_json(body, context={"bot": bot})
+        except ValidationError as exc:
+            logger.warning("telegram_webhook.invalid_json", exc_info=exc)
+            raise HTTPException(status_code=400, detail="invalid json") from exc
 
-    meta = meta_extractor.extract(update)
-    set_context(update_id=meta.update_id, user_id=meta.user_id, chat_id=meta.chat_id)
+        meta = meta_extractor.extract(update)
 
-    logger.info("telegram_webhook.received")
+        with context_scope(
+            update_id=meta.update_id,
+            user_id=meta.user_id,
+            chat_id=meta.chat_id,
+        ):
+            logger.info("telegram_webhook.received")
 
-    contract = TelegramWebhookContract(update=update, meta=meta)
-    await telegram_webhook(contract)
+            contract = TelegramWebhookContract(update=update, meta=meta)
+            await telegram_webhook_interactor(contract)
+
+            logger.info("telegram_webhook.processed")
 
     return {"ok": True}

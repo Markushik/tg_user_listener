@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from pprint import pprint
-
 from aiogram.enums import ChatType
 from aiogram.types import Update
 from faststream.rabbit import RabbitBroker
@@ -30,7 +28,6 @@ class UpdatesPublisher:
         scope = self._choose_scope(chat_type)
         routing_key = f"updates.{self.audience}.{scope}"
 
-        pprint(update)
         await self.broker.publish(
             message=update,
             exchange=self.exchange,
