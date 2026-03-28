@@ -12,15 +12,12 @@ class BotSettings(BaseModel):
     webhook_secret: str = Field(default_factory=lambda: os.getenv("WEBHOOK_SECRET", "my-secret"))
 
 
-
 class RabbitSettings(BaseModel):
-    url: str = Field(
-        default="amqp://guest:guest@localhost:5672",
-    )
+    url: str = Field(default="amqp://guest:guest@localhost:5672")
     audience: str = "user"
-    exchange: str = Field(
-        default="tg_updates.inbound",
-    )
+
+    # main inbound topology
+    exchange: str = Field(default="tg_updates.inbound")
     queues: Mapping[str, str] = Field(
         default_factory=lambda: {
             "tg_updates.user.private": "updates.user.private",
@@ -29,6 +26,12 @@ class RabbitSettings(BaseModel):
         },
         description="Mapping of queue name to routing key",
     )
+
+    # retry / poison topology
+    retry_exchange: str = "tg_updates.retry"
+    retry_queue_suffix: str = ".retry"
+    retry_routing_key_suffix: str = ".retry"
+    retry_ttl_ms: int = 30_000
 
 
 class Settings(BaseModel):
