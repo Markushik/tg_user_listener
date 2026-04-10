@@ -12,7 +12,7 @@ class BotProvider(Provider):
         self,
     ) -> AsyncIterable[Bot]:
         async with Bot(
-            token="6996207760:AAEJjYu7fgt3Mmb2Tot6f_jAdXkblWBEuHU",
+            token="6996207760:AAEQbsRpJCuWp7bKAfk24t7RecPqskBLpZQ",
         ) as bot:
             commands = [
                 BotCommand(command="start", description="— запустить бота"),
