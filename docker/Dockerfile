@@ -26,4 +26,4 @@ RUN useradd -r -u 10001 app
 USER app
 
 ENTRYPOINT ["opentelemetry-instrument", "--log_level", "info"]
-CMD ["python", "-m", "uvicorn", "tg_user_forwarder.main.app:app", "--host", "0.0.0.0", "--port", "9803"]
+CMD ["python", "-m", "uvicorn", "tg_user_forwarder.main.app:app", "--host", "0.0.0.0", "--port", "8080"]

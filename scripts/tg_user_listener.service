@@ -1,0 +1,28 @@
+[Unit]
+Description=tg_user_listener
+Wants=docker.service network-online.target
+After=docker.service network-online.target
+ConditionPathExists=/opt/tg_user_listener/docker/docker-compose.yaml
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/opt/tg_user_listener
+
+Environment=DOCKER_BUILDKIT=1
+Environment=COMPOSE_FILE=docker/docker-compose.yaml
+EnvironmentFile=-/etc/default/tg_user_listener
+
+TimeoutStartSec=0
+TimeoutStopSec=60
+
+ExecStartPre=/bin/sh -lc 'test -r "${SSH_KEY:-/root/.ssh/id_rsa}" && eval "$(ssh-agent -s)" && ssh-add "${SSH_KEY:-/root/.ssh/id_rsa}" && docker compose build --pull --ssh default tg_user_listener; test -n "${SSH_AGENT_PID:-}" && ssh-agent -k || true'
+ExecStartPre=/bin/sh -lc 'test -r "${SSH_KEY:-/root/.ssh/id_rsa}" || docker compose build --pull tg_user_listener'
+ExecStart=/usr/bin/docker compose up -d --force-recreate tg_user_listener
+ExecReload=/usr/bin/docker compose up -d --build --force-recreate tg_user_listener
+ExecStop=/usr/bin/docker compose stop tg_user_listener
+
+Restart=no
+
+[Install]
+WantedBy=multi-user.target
