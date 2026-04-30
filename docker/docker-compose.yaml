@@ -1,0 +1,18 @@
+cat > /home/mihail_toropkov/tg_user_listener/docker/docker-compose.yaml << 'EOF'
+services:
+  tg_user_listener:
+    container_name: tg_user_listener
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: tg_user_listener:local
+    restart: unless-stopped
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    network_mode: host
+EOF
