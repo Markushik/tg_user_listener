@@ -1,4 +1,3 @@
-cat > /home/mihail_toropkov/tg_user_listener/docker/docker-compose.yaml << 'EOF'
 services:
   tg_user_listener:
     container_name: tg_user_listener
@@ -15,4 +14,3 @@ services:
         max-size: "10m"
         max-file: "3"
     network_mode: host
-EOF

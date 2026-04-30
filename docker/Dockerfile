@@ -1,4 +1,3 @@
-cat > /home/mihail_toropkov/tg_user_listener/docker/Dockerfile << 'EOF'
 # syntax=docker/dockerfile:1.6
 FROM python:3.12-slim-bookworm AS builder
 
@@ -28,4 +27,3 @@ USER app
 
 ENTRYPOINT ["opentelemetry-instrument", "--log_level", "info"]
 CMD ["python", "-m", "uvicorn", "tg_user_forwarder.main.app:app", "--host", "0.0.0.0", "--port", "9803"]
-EOF
