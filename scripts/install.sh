@@ -6,7 +6,7 @@ SERVICE_NAME="tg_user_listener.service"
 SERVICE_DST="/etc/systemd/system/${SERVICE_NAME}"
 
 REPO_URL="https://github.com/Markushik/tg_user_listener"
-BRANCH="master"
+BRANCH="k8s"
 UNIT_REL_PATH="scripts/tg_user_listener.service"
 
 git config --global --add safe.directory "$PROJECT_DIR" >/dev/null 2>&1 || true
