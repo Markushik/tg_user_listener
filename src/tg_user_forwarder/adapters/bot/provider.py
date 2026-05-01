@@ -1,24 +1,22 @@
 from typing import AsyncIterable
 
 from aiogram import Bot
+from aiogram.types import BotCommand
+from aiogram.types import BotCommandScopeAllGroupChats, BotCommandScopeAllPrivateChats
 from dishka import Provider, Scope, provide
 
-from aiogram.types.bot_command import BotCommand
-from aiogram.types import BotCommandScopeAllPrivateChats, BotCommandScopeAllGroupChats
+from tg_user_forwarder.settings.models import Settings
+
 
 class BotProvider(Provider):
     @provide(scope=Scope.APP)
-    async def bot(
-        self,
-    ) -> AsyncIterable[Bot]:
-        async with Bot(
-            token="6996207760:AAEQbsRpJCuWp7bKAfk24t7RecPqskBLpZQ",
-        ) as bot:
+    async def bot(self, settings: Settings) -> AsyncIterable[Bot]:
+        async with Bot(token=settings.bot.token) as bot:
             commands = [
                 BotCommand(command="start", description="— запустить бота"),
             ]
 
             await bot.set_my_commands(commands, scope=BotCommandScopeAllPrivateChats())
             await bot.set_my_commands([], scope=BotCommandScopeAllGroupChats())
-            
+
             yield bot

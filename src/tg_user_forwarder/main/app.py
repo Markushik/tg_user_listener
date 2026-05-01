@@ -12,6 +12,9 @@ from tg_user_forwarder.container import get_container
 from tg_user_forwarder.logging import setup_logging
 from tg_user_forwarder.presentation.api.health import router as health_router
 from tg_user_forwarder.presentation.api.telegram import router as telegram_router
+from tg_user_forwarder.application.services.telegram_webhook_setup import (
+    TelegramWebhookSetupService,
+)
 
 setup_logging(logging.INFO)
 
@@ -33,7 +36,12 @@ def create_app() -> FastAPI:
     async def lifespan(app: FastAPI):
         setup_otel()
         app.state.container = container
+    
+        telegram_webhook_setup_service = await container.get(TelegramWebhookSetupService)
+        await telegram_webhook_setup_service.setup()
+    
         yield
+    
         await container.close()
 
     app = FastAPI(lifespan=lifespan)

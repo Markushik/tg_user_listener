@@ -2,9 +2,15 @@ from __future__ import annotations
 
 from dishka import Provider, Scope, provide
 
+from aiogram import Bot
+
 from tg_user_forwarder.adapters.broker.publisher import UpdatesPublisher
 from tg_user_forwarder.application.interactors.telegram_webhook import (
     TelegramWebhookInteractor,
+)
+from tg_user_forwarder.settings.models import Settings
+from tg_user_forwarder.application.services.telegram_webhook_setup import (
+    TelegramWebhookSetupService,
 )
 from tg_user_forwarder.application.services.meta_extractor import MetaExtractorService
 
@@ -13,6 +19,14 @@ class ServiceProvider(Provider):
     @provide(scope=Scope.APP)
     def get_meta_extractor_service(self) -> MetaExtractorService:
         return MetaExtractorService()
+    
+    @provide(scope=Scope.APP)
+    def telegram_webhook_setup_service(
+        self,
+        bot: Bot,
+        settings: Settings,
+    ) -> TelegramWebhookSetupService:
+        return TelegramWebhookSetupService(bot=bot, settings=settings)
 
 
 class InteractorProvider(Provider):
