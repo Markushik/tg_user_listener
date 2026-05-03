@@ -19,7 +19,7 @@ from tg_user_forwarder.application.services.meta_extractor import MetaExtractorS
 from tg_user_forwarder.logging import context_scope
 from tg_user_forwarder.settings.models import Settings
 
-router = APIRouter(prefix="/telegram")
+router = APIRouter()
 
 logger = logging.getLogger("tg.webhook")
 tracer = trace.get_tracer(__name__)
